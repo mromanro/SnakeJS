@@ -1,6 +1,10 @@
 <html>
 	<canvas id="web_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
-	<script>		
+	<script>	
+		
+		var snakePositionX = snakePositionY = 200;
+		var vectorX = vectorY = 0;
+	
 		window.onload = function() {
 			canvas = document.getElementById("web_canvas");
 			canvas.style.left = "100px";
@@ -12,14 +16,40 @@
 		}
 		
 		function keyPush(event) {
-		
+			switch(event.keyCode) {
+				case 37: // arrow key left
+					vectorX = -10;
+					vectorY = 0;
+					break;
+				case 38: // arrow key up
+					vectorX = 0;
+					vectorY = -10;
+					break;
+				case 39: // arrow key right
+					vectorX = 10;
+					vectorY = 0;
+					break;
+				case 40: // arrow key down
+					vectorX = 0;
+					vectorY = 10;
+					break;
+				default:
+					break;
+			}	
 		}
 		
 		function game() {
+			//update snake position
+			snakePositionX += vectorX;
+			snakePositionY += vectorY;
 		
 			//fill background
-			context.fillStyle = "black";
+			context.fillStyle = "white";
 			context.fillRect(0,0,canvas.width, canvas.height);
+			
+			//draw snake
+			context.fillStyle = "green";
+			context.fillRect(snakePositionX, snakePositionY, 20, 20);
 		}
 	</script>
 </html>
