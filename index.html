@@ -3,7 +3,9 @@
 	<script>	
 		
 		var snakePositionX = snakePositionY = 200;
+        var foodPositionX = foodPositionY = 20;
 		var vectorX = vectorY = 0;
+        var bound = 20;
 	
 		window.onload = function() {
 			canvas = document.getElementById("web_canvas");
@@ -18,20 +20,20 @@
 		function keyPush(event) {
 			switch(event.keyCode) {
 				case 37: // arrow key left
-					vectorX = -10;
+					vectorX = -1;
 					vectorY = 0;
 					break;
 				case 38: // arrow key up
 					vectorX = 0;
-					vectorY = -10;
+					vectorY = -1;
 					break;
 				case 39: // arrow key right
-					vectorX = 10;
+					vectorX = 1;
 					vectorY = 0;
 					break;
 				case 40: // arrow key down
 					vectorX = 0;
-					vectorY = 10;
+					vectorY = 1;
 					break;
 				default:
 					break;
@@ -42,14 +44,29 @@
 			//update snake position
 			snakePositionX += vectorX;
 			snakePositionY += vectorY;
+            
+            //check to see if snake ate food
+            if(snakePositionX === foodPositionX
+               && snakePositionY === foodPositionY) {
+                foodPositionX = -100;
+                foodPositionY = -100;
+            }
 		
 			//fill background
 			context.fillStyle = "white";
 			context.fillRect(0,0,canvas.width, canvas.height);
+            
+            //draw food as circle
+            context.fillStyle = "yellow";
+            context.beginPath();
+            context.arc(foodPositionX, foodPositionY, 10, 2 * Math.PI, false);
+            context.fill();
 			
-			//draw snake
+			//draw snake as square
 			context.fillStyle = "green";
-			context.fillRect(snakePositionX, snakePositionY, 20, 20);
+            context.fillRect(snakePositionX, snakePositionY, bound - 2, bound - 2);
+            
+            
 		}
 	</script>
 </html>
