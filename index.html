@@ -2,10 +2,11 @@
 	<canvas id="web_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
 	<script>	
 		
-		var snakePositionX = snakePositionY = 200;
-        var foodPositionX = foodPositionY = 20;
+		var snakePositionX = snakePositionY = 10;
+        var foodPositionX = foodPositionY = 15;
 		var vectorX = vectorY = 0;
         var bound = 20;
+		var radius = (bound - 2) / 2;
 	
 		window.onload = function() {
 			canvas = document.getElementById("web_canvas");
@@ -44,12 +45,14 @@
 			//update snake position
 			snakePositionX += vectorX;
 			snakePositionY += vectorY;
+			
+			vectorX = vectorY = 0;
             
             //check to see if snake ate food
-            if(snakePositionX === foodPositionX
-               && snakePositionY === foodPositionY) {
-                foodPositionX = -100;
-                foodPositionY = -100;
+            if(snakePositionX == foodPositionX
+               && snakePositionY == foodPositionY) {
+                foodPositionX = Math.floor(Math.random() * bound);
+                foodPositionY = Math.floor(Math.random() * bound);
             }
 		
 			//fill background
@@ -57,14 +60,14 @@
 			context.fillRect(0,0,canvas.width, canvas.height);
             
             //draw food as circle
-            context.fillStyle = "yellow";
+            context.fillStyle = "red";
             context.beginPath();
-            context.arc(foodPositionX, foodPositionY, 10, 2 * Math.PI, false);
+            context.arc(foodPositionX * bound + radius, foodPositionY * bound + radius, radius, 2 * Math.PI, false);
             context.fill();
 			
 			//draw snake as square
 			context.fillStyle = "green";
-            context.fillRect(snakePositionX, snakePositionY, bound - 2, bound - 2);
+            context.fillRect(snakePositionX * bound, snakePositionY * bound, bound - 2, bound - 2);
             
             
 		}
