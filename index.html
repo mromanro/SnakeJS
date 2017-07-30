@@ -1,77 +1,152 @@
 <html>
-	<canvas id="web_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
+    <head>
+        <style>
+            body {height: 100%;}
+            canvas {border:1px solid #000000; display: block; margin: 100px auto; padding: 0;}
+        </style>
+    </head>
+    <body>
+	<canvas id="web_canvas" width="400" height="400"></canvas>
 	<script>	
 		
 		var snakePositionX = snakePositionY = 10;
         var foodPositionX = foodPositionY = 15;
-		var vectorX = vectorY = 0;
+        var vectorX = 1;
+        var vectorY = 0;
         var bound = 20;
 		var radius = (bound - 2) / 2;
-	
+        
+        var tail = [];
+        var tailSize = 3;
+        
+        var gameRun = true;
+        var looped = true;
+    
 		window.onload = function() {
 			canvas = document.getElementById("web_canvas");
-			canvas.style.left = "100px";
-			canvas.style.top = "100px";
-			canvas.style.position = "absolute";
 			context = canvas.getContext("2d");
 			document.addEventListener("keydown", keyPush);
 			setInterval(game, 100);
 		}
 		
 		function keyPush(event) {
+            
+            if(looped){
+            looped = false;
 			switch(event.keyCode) {
 				case 37: // arrow key left
-					vectorX = -1;
-					vectorY = 0;
+                    if(vectorX != 1) {
+                        vectorX = -1;
+                        vectorY = 0;
+                    }
 					break;
 				case 38: // arrow key up
-					vectorX = 0;
-					vectorY = -1;
+                    if(vectorY != 1) {
+                        vectorX = 0;
+                        vectorY = -1;
+                    }
 					break;
 				case 39: // arrow key right
-					vectorX = 1;
-					vectorY = 0;
+                    if(vectorX != -1) {
+                        vectorX = 1;
+                        vectorY = 0;
+                    }
 					break;
 				case 40: // arrow key down
-					vectorX = 0;
-					vectorY = 1;
+                    if(vectorY != -1) {
+                        vectorX = 0;
+                        vectorY = 1;
+                    }
 					break;
 				default:
 					break;
+            }
 			}	
 		}
 		
 		function game() {
-			//update snake position
-			snakePositionX += vectorX;
-			snakePositionY += vectorY;
             
-            //check to see if snake ate food
+            if(gameRun == true) {
+                update();
+                drawBackground(context, canvas, "white");
+            }
+            else {
+                
+                drawBackground(context, canvas, "red");
+            }
+            drawFood(context, "blue",foodPositionX, foodPositionY, radius, bound);
+            drawSnake(context, "lime", snakePositionX, snakePositionY, bound, tail);
+            looped = true;
+		}
+    
+        function update() {
+            
+            //update snake position
+            snakePositionX += vectorX;
+            snakePositionY += vectorY;
+            
+            //check collision with food
             if(snakePositionX == foodPositionX
                && snakePositionY == foodPositionY) {
                 foodPositionX = Math.floor(Math.random() * bound);
                 foodPositionY = Math.floor(Math.random() * bound);
+                
+                tailSize++;
             }
-		
-			//fill background
-			context.fillStyle = "white";
-			context.fillRect(0,0,canvas.width, canvas.height);
             
+            
+            checkDeathCollision(context, canvas, snakePositionY, snakePositionX, tail);
+            tail.push({X:snakePositionX, Y:snakePositionY});
+                
+            if(tail.length > tailSize) {
+                tail.shift();
+            }
+          
+            
+        }
+    
+        function checkDeathCollision(context, canvas, snakePositionY, snakePositionX, tail) {
+            if(snakePositionX < 0 || snakePositionY < 0 ||
+               (snakePositionX * bound) >= canvas.width || (snakePositionY * bound) >= canvas.height){
+                gameRun = false;
+                return true;
+            }
+            
+            tail.forEach(function(element){
+                if(snakePositionX == element.X && snakePositionY == element.Y){
+                    gameRun = false;
+                    return true;
+                }
+            });
+            return false;
+        }
+    
+        function drawBackground(context, canvas, color) {
+            //fill background
+            context.fillStyle = color;
+            context.fillRect(0,0,canvas.width, canvas.height);
+        }
+    
+        function drawFood(context, color, positionX, positionY, radius, bound) {
             //draw food as circle
-            context.fillStyle = "red";
+            context.fillStyle = color;
             context.beginPath();
-            context.arc(foodPositionX * bound + radius, foodPositionY * bound + radius, radius, 2 * Math.PI, false);
+            context.arc(positionX * bound + radius, positionY * bound + radius, radius, 2 * Math.PI, false);
             context.fill();
-			
-			//draw snake as square
-			context.fillStyle = "green";
+        }
+    
+        function drawSnake(context, color, positionX, positionY, bound, tail) {
+            //draw snake as square
+            context.fillStyle = color;
             context.fillRect(snakePositionX * bound, snakePositionY * bound, bound - 2, bound - 2);
             
-            
-		}
-		
-		//TODO: modulize
+            //draw tail
+            tail.forEach(function(element) {
+                context.fillRect(element.X * bound, element.Y * bound, bound - 2, bound - 2);
+            });
+        }
 		//TODO: make difficulties
 		//TODO: classes??
 	</script>
+    </body>
 </html>
