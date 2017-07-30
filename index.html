@@ -1,7 +1,6 @@
 <html>
     <head>
         <style>
-            body {height: 100%;}
             canvas {border:1px solid #000000; display: block; margin: 100px auto; padding: 0;}
         </style>
     </head>
@@ -9,20 +8,24 @@
 	<canvas id="web_canvas" width="400" height="400"></canvas>
 	<script>	
 		
-		var snakePositionX = snakePositionY = 10;
+		var snakePositionX = 0;
+        var snakePositionY = 0;
         var foodPositionX = foodPositionY = 15;
         var vectorX = 1;
         var vectorY = 0;
         var bound = 20;
 		var radius = (bound - 2) / 2;
         
+        var avaPos = [];
+        
         var tail = [];
-        var tailSize = 3;
+        var tailSize = 4;
         
         var gameRun = true;
         var looped = true;
     
 		window.onload = function() {
+            generateAvailablePositions();
 			canvas = document.getElementById("web_canvas");
 			context = canvas.getContext("2d");
 			document.addEventListener("keydown", keyPush);
@@ -63,6 +66,14 @@
             }
 			}	
 		}
+    
+        function generateAvailablePositions() {
+            for(var i = 0; i < 20; i++){
+                for(var j = 0; j < 20; j++){
+                    avaPos.push({X: i , Y: j});
+                }
+            }
+        }
 		
 		function game() {
             
@@ -88,20 +99,34 @@
             //check collision with food
             if(snakePositionX == foodPositionX
                && snakePositionY == foodPositionY) {
-                foodPositionX = Math.floor(Math.random() * bound);
-                foodPositionY = Math.floor(Math.random() * bound);
+                //foodPositionX = Math.floor(Math.random() * bound);
+                //foodPositionY = Math.floor(Math.random() * bound);
+                var position = avaPos[Math.floor(Math.random() * avaPos.length)];
+                foodPositionX = position.X;
+                foodPositionY = position.Y;
+                console.log("X: " + position.X + "Y: " + position.Y );
                 
                 tailSize++;
             }
             
             
-            checkDeathCollision(context, canvas, snakePositionY, snakePositionX, tail);
-            tail.push({X:snakePositionX, Y:snakePositionY});
-                
-            if(tail.length > tailSize) {
-                tail.shift();
+            var death = checkDeathCollision(context, canvas, snakePositionY, snakePositionX, tail);
+            
+            if(death) {
+                snakePositionX -= vectorX;
+                snakePositionY -= vectorY;
             }
-          
+            else{
+                var temp = {X:snakePositionX, Y:snakePositionY};
+                tail.push(temp);
+                var index = avaPos.indexOf(temp);
+                if(index > -1)
+                    avaPos.splice(index, 1);
+                
+                if(tail.length > tailSize) {
+                    avaPos.push(tail.shift());
+                }
+            }
             
         }
     
@@ -145,6 +170,15 @@
                 context.fillRect(element.X * bound, element.Y * bound, bound - 2, bound - 2);
             });
         }
+        //adding food on map.
+        //create list of open positions?
+        //add a position when it becomes clear, remove when it doesnt?
+        //randomly pull from list?
+        
+        //or keep track of which positions are held.
+        //then place where its not held?
+    
+        //TODO: end game before head goes out of bounds. add game over ands start screens.
 		//TODO: make difficulties
 		//TODO: classes??
 	</script>
